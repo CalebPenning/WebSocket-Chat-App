@@ -22,7 +22,7 @@ const io = socketio(server, corsOptions)
 io.on('connection', (socket) => {
     console.log("New connection.")
 
-    socket.on("login", ({ name, room }) => {
+    socket.on("login", ({ name, room }, callback) => {
         console.log(name, room)
     })
 

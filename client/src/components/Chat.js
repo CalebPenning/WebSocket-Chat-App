@@ -19,7 +19,15 @@ const Chat = ({ location }) => {
         setName(name)
         setRoom(room)
 
-        socket.emit('login', { name, room })
+        socket.emit('login', { name, room }, () => {
+            
+        })
+
+        return () => {
+            socket.emit("disconnect")
+
+            socket.off()
+        }
     }, [ENDPOINT, location.search])
 
     return (
