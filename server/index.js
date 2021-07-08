@@ -24,7 +24,9 @@ const io = socketio(server, corsOptions)
 io.on('connection', (socket) => {
 
     socket.on("login", ({ name, room }, callback) => {
-        const { error, user } = addUser({ id: socket.id, name, room})
+        const { error, user } = addUser({ id: socket.id, name, room })
+
+        console.log(`${name} has joined`)
 
         if (error) return callback(error)
 
@@ -33,6 +35,8 @@ io.on('connection', (socket) => {
 
         socket.join(user.room)
 
+        io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) })
+
         callback()
     })
 
@@ -40,12 +44,15 @@ io.on('connection', (socket) => {
         const user = getUser(socket.id)
 
         io.to(user.room).emit('message', { user: user.name, text: message })
+        io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) })
 
         callback()
     })
 
     socket.on('disconnect', () => {
-        console.log("User has left.")
+        const user = getUser(socket.id)
+        io.to(user.room).emit('message', { user: 'admin', text: `${user.name} has left the room.`})
+        console.log(`${user.name} has left the room`)
     })
 })
 
